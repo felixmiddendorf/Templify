@@ -1,0 +1,1 @@
+Hi <em><?php echo $name; ?></em>, welcome aboard!
