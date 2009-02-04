@@ -25,8 +25,11 @@
  * @license http://www.gnu.org/licenses/lgpl-3.0.txt GNU Lesser General Public License 3.0
  */
 class Templify{
+	/**
+	 * @see Templify::get()
+	 */
 	const ESCAPE = true;
-
+	
 	/**
 	 * Version number of Templify
 	 */
@@ -41,7 +44,7 @@ class Templify{
 	protected $assignments = array();
 
 	/**
-	 * Charset that is used. The default charset is: 'UTF-8'. Consult {@link htmlentities} for a list of valid charsets.
+	 * Charset that is used. The default charset is: 'UTF-8'. Please consult {@link htmlentities} for a list of valid charsets.
 	 *
 	 * @var	string
 	 * @static
@@ -223,6 +226,9 @@ class Templify{
 	 * @see 	Templify::$cacheLifetime
 	 */
 	public function setCacheLifetime($lifetime){
+		if((int) $lifetime < 0){
+			throw new Exception("Illegal Argument: lifetime must be at least 0.");
+		}
 		$this->cacheLifetime = (int) $lifetime;
 	}
 
@@ -230,11 +236,14 @@ class Templify{
 	 * Sets the algorithm that is used to hash the names of cached files.
 	 *
 	 * @link http://php.net/manual/en/function.hash-algos.php
-	 * @param	mixed	$algorithm	Please refer to the php documentation to choose a valid algorithm.
+	 * @param	mixed	$algorithm	Please refer to the php documentation to choose a valid hash algorithm.
 	 * @see	Templify::$hash
 	 */
 	public function setHash($algorithm){
-		$this->hash = ($algorithm == false)?false:((string) algorithm);
+		if(!$this->production && !in_array($algorithm, hash_algos())){
+			throw new Exception("{$algorithm} is not a valid hash algorithm");
+		}
+		$this->hash = ($algorithm === false)?false:((string) $algorithm);
 	}
 
 
@@ -246,7 +255,7 @@ class Templify{
 	 * <code>
 	 * // a string
 	 * Templify::escape('<script>...</script>');
-	 * #=> '&lt;script&rt;...&lt;/script&rt;'
+	 * #=> '&lt;script&gt;...&lt;/script&gt;'
 	 *
 	 * // an array containing html entities
 	 * Templify::escape(array('c&a', 'h&m'));
@@ -373,7 +382,7 @@ class Templify{
 	 * @see		Templify::escape()
 	 * @see		Templify::__get()
 	 */
-	protected function get($name, $escape = false){
+	public function get($name, $escape = false){
 		$toReturn = (array_key_exists($name,$this->assignments))?$this->assignments[$name]:'';
 		return (($escape === self::ESCAPE)? self::escape($toReturn) : $toReturn);
 	}
@@ -400,9 +409,9 @@ class Templify{
 			if($this->caching === true){
 				$pathToCacheFile = $this->cacheFilename($templateFile, $cacheIdentifier);
 				if($this->isCached($templateFile, $cacheIdentifier)){
-					require $pathToCacheFile;
+					echo file_get_contents($pathToCacheFile);
 				}else{
-					require $this->cache($templateFile, $cacheIdentifier);
+					echo $this->cache($templateFile, $cacheIdentifier);
 				}
 			}else{
 				echo $this->compile($templateFile);
@@ -441,19 +450,19 @@ class Templify{
 	 *
 	 * @param	string	$templateFile		name of the template file
 	 * @param	string	$cacheIdentifier	e.g. primary key
-	 * @return	string	path and filename of the cached file
+	 * @return	string	compiled template
 	 */
 	public function cache($templateFile, $cacheIdentifier = ''){
 		$cacheFile = $this->cacheFilename($templateFile, $cacheIdentifier);
 		$cachedTemplate = $this->compile($templateFile);
 		if($this->verboseCaching){
 			$time = (date('m/d/Y H:i'));
-			$cachedTemplate."\n<!-- {$templateFile} cached ($time) -->\n";
+			$cachedTemplate .= "\n<!-- {$templateFile} cached ($time) -->\n";
 		}
 		if(@file_put_contents($cacheFile, $cachedTemplate) === false){
 			throw new Exception("Templify could not write the cache directory '{$this->cacheDirectory}'");
 		}else{
-			return $cacheFile;
+			return $cachedTemplate;
 		}
 	}
 
@@ -549,7 +558,6 @@ class Templify{
 	}
 }
 
-
 if(!function_exists('h')){
 	/**
 	 * Alias for Templify::escape() that is only defined if there is not already another function called h().
@@ -560,7 +568,7 @@ if(!function_exists('h')){
 	 * @return	mixed	escaped input
 	 */
 	function h($input, $break = true){
-		return Templify::escape($input, $nobreak);
+		return Templify::escape($input, $break);
 	}
 }
 ?>
