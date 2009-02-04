@@ -1,3 +1,32 @@
-Templify is the native php5 template engine.
+ NAME
+		Templify - the native php5 template engine.
 
-Please refer to the project home on http://code.google.com/p/templify/ for further information.
+ VERSION
+		0.3
+
+ PROJECT HOME
+		Templify on Google Code: <http://templify.googlecode.com>
+
+ SYNOPSIS
+ 		// in control
+ 		$t = new Templify();
+ 		$t->assign('headline' => 'Templify');
+ 		// in template file
+ 		<h1><?= $headline; ?></h1>
+ 		// or
+ 		<h1><?php echo $headline; ?></h1>
+
+ DESCRIPTION
+		Please refer to the project home for further information on how to use Templify.
+
+ AUTHOR
+		Written and maintained by Felix Middendorf <http://www.felixmiddendorf.eu>
+
+ REPORTING BUGS
+ 		Please report any issues to <http://code.google.com/p/templify/issues/entry>
+
+ COPYRIGHT
+ 		Copyright 2007-2009 Felix Middendorf. All rights reserved.
+ 		Templify is released under GNU Lesser Public License (see COPYING.LESSER).
+ 		Please respect copyright and license when using Templify.
+ 		
