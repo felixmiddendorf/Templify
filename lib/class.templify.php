@@ -92,7 +92,7 @@ class Templify{
 	 *
 	 * @var	boolean
 	 */
-	protected $verboseCaching = true;
+	protected $verboseCaching = false;
 
 	/**
 	 * In order to increase performance, templates
