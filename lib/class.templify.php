@@ -487,12 +487,8 @@ class Templify{
 	protected function compile($templateFile){
 		$pathToTemplateFile = $this->templateDirectory.DIRECTORY_SEPARATOR.$templateFile;
 		if(is_array($this->assignments) && count($this->assignments) > 0){
-			$names = array_keys($this->assignments);
-			foreach($names as $name){
-				//using reference to reduce memory usage
-				${$name} =& $this->assignments[$name];
-			}
-		}
+			extract($this->assignments);
+		} 
 		//parse the template
 		ob_start();
 		require $pathToTemplateFile;
@@ -571,4 +567,3 @@ if(!function_exists('h')){
 		return Templify::escape($input, $break);
 	}
 }
-?>
