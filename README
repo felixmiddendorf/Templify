@@ -10,7 +10,7 @@
  SYNOPSIS
  		// in control
  		$t = new Templify();
- 		$t->assign('headline' => 'Templify');
+ 		$t->assign('headline', 'Templify');
  		// in template file
  		<h1><?= $headline; ?></h1>
  		// or
