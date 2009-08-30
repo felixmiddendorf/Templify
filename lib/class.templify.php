@@ -310,11 +310,12 @@ class Templify{
 	 * Some usage examples:
 	 * <code>
 	 * // in control
-	 * $this->assign('firstname', 'Felix');
-	 * $this->assign('active', true);
-	 * $this->assign('likes', array('salad', 'pizza'));
-	 * $this->assign('now', time());
-	 * $this->assign('person', new Person();
+	 * $t = new Templify();
+	 * $t->assign('firstname', 'Felix');
+	 * $t->assign('active', true);
+	 * $t->assign('likes', array('salad', 'pizza'));
+	 * $t->assign('now', time());
+	 * $t->assign('person', new Person();
 	 *
 	 * // in template file
 	 * echo $firstname; #=> 'Felix'
@@ -546,11 +547,32 @@ class Templify{
 	 * </code>
 	 *
 	 * @see		Templify::get()
+	 * @see		Templify::set();
 	 * @return	string	the value that is assigned to <var>$name</var>
 	 * @param	string	$name	name/key of assignment
 	 */
 	public function __get($name){
 		return $this->get($name);
+	}
+	
+	/**
+	 * A magic setter for assignments as specified in {@link http://php.net/manual/en/language.oop5.overloading.php}.
+	 * 
+	 * Example:
+	 * <code>
+	 * // in control
+	 * $t = new Templify();
+	 * $t->name = 'Felix';
+	 * // same as
+	 * $t->assign('name', 'Felix');
+	 * </code>
+	 * @see		Templify::assign()
+	 * @see		Templify::__get()
+	 * @param	$name	name/key of assignment
+	 * @param	$value	the value that is to be assigned to <var>$name</var>
+	 */
+	public function __set($name, $value){
+		$this->assign($name, $value);
 	}
 }
 
