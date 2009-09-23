@@ -359,7 +359,7 @@ class Templify{
 	 * @param	array	$array	key/value-pairs
 	 * @see		Templify::assign()
 	 */
-	public function assignAll($array){
+	public function assignAll(array $array){
 		if(is_array($array)){
 			foreach($array as $name => $value){
 				$this->assign($name, $value);
@@ -499,7 +499,7 @@ class Templify{
 	}
 
 	/**
-	 * Determines wheter there is a cache file for <var>$templateFile</var> which did not exceed its lifetime.
+	 * Determines whether there is a cache file for <var>$templateFile</var> which did not exceed its lifetime.
 	 *
 	 * @param	string	$templateFile 		name of the template file
 	 * @param	string	$cacheIdentifier	e.g. primary key
