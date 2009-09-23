@@ -52,14 +52,14 @@ class Templify{
 	protected static $charset = 'UTF-8';
 
 	/**
-	 * Directory that contains the template files. The default value is './templates'
+	 * Directory that contains the template files. The default value is './templates/'
 	 *
 	 * @var	string
 	 */
 	protected $templateDirectory;
 
 	/**
-	 * Directory that is used to store cached files. The default value is './cache'
+	 * Directory that is used to store cached files. The default value is './cache/'
 	 *
 	 * @var	string
 	 */
@@ -133,8 +133,8 @@ class Templify{
 	 * </code>
 	 */
 	public function __construct(){
-		$this->setDir('.'.DIRECTORY_SEPARATOR.'templates');
-		$this->setCacheDir('.'.DIRECTORY_SEPARATOR.'cache');
+		$this->setDir('.'.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR);
+		$this->setCacheDir('.'.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR);
 	}
 
 	/**
@@ -166,6 +166,9 @@ class Templify{
 	 * @see		Templify::$templateDirectory
 	 */
 	public function setDir($dir){
+		if(substr($dir, -1, 1) != DIRECTORY_SEPARATOR){
+			$dir .= DIRECTORY_SEPARATOR;
+		}
 		$this->templateDirectory = (string) $dir;
 	}
 
@@ -186,6 +189,9 @@ class Templify{
 	 * @see		Templify::$cacheDirectory
 	 */
 	public function setCacheDir($dir){
+		if(substr($dir, -1, 1) != DIRECTORY_SEPARATOR){
+			$dir .= DIRECTORY_SEPARATOR;
+		}
 		$this->cacheDirectory = (string) $dir;
 	}
 
@@ -401,7 +407,7 @@ class Templify{
 	 * @param	string	$cacheIdentifier	e.g. primary key
 	 */
 	public function parse($templateFile, $cacheIdentifier = '') {
-		$pathToTemplateFile = $this->templateDirectory.DIRECTORY_SEPARATOR.$templateFile;
+		$pathToTemplateFile = $this->templateDirectory.$templateFile;
 		if(!is_file($pathToTemplateFile)){
 			throw new Exception("The requested template file '{$templateFile}' does not exist");
 		}else{
@@ -440,10 +446,10 @@ class Templify{
 		}
 		//parse the template
 		ob_start();
-		require $this->templateDirectory.DIRECTORY_SEPARATOR.$templateFile;
+		require $this->templateDirectory.$templateFile;
 		return ob_get_clean();
 	}
-	
+
 	/**
 	 * Determines whether there is a cache file for <var>$templateFile</var> which did not exceed its lifetime.
 	 *
@@ -456,7 +462,7 @@ class Templify{
 		return ($this->caching &&
 		file_exists($cacheFile) &&
 		(time() - $this->cacheLifetime <= filemtime($cacheFile)) &&
-		($this->production == true || filemtime($this->templateDirectory.DIRECTORY_SEPARATOR.$templateFile) <= filemtime($cacheFile)));
+		($this->production == true || filemtime($this->templateDirectory.$templateFile) <= filemtime($cacheFile)));
 	}
 
 	/**
@@ -505,7 +511,7 @@ class Templify{
 	 */
 	protected function cacheFilename($templateFile, $cacheIdentifier = ''){
 		$cacheFile = $templateFile.((strlen($cacheIdentifier) > 0)?'_'.$cacheIdentifier:'');
-		return $this->cacheDirectory.DIRECTORY_SEPARATOR.(($this->hash !== false)?hash($this->hash,$cacheFile):$cacheFile).(($this->cacheFileExtension !== false)?'.'.$this->cacheFileExtension:'');
+		return $this->cacheDirectory.(($this->hash !== false)?hash($this->hash,$cacheFile):$cacheFile).(($this->cacheFileExtension !== false)?'.'.$this->cacheFileExtension:'');
 	}
 
 	/**
