@@ -29,7 +29,7 @@ class Templify{
 	 * @see Templify::get()
 	 */
 	const ESCAPE = true;
-	
+
 	/**
 	 * Version number of Templify
 	 */
@@ -111,7 +111,7 @@ class Templify{
 	 * The algorithm that is used in order to hash the names of cache files.
 	 * The default algorithm is 'sha256'. Setting <var>Template::$hash</var> to
 	 * false disables the use of hashed file names.
-	 * 
+	 *
 	 * @link 	http://php.net/manual/en/function.hash-algos.php
 	 * @var		mixed	Either a valid algorithm name or false
 	 */
@@ -285,6 +285,7 @@ class Templify{
 			return ($break === true)?nl2br($arg):$arg;
 		}elseif(is_array($arg)){
 			// arrays are escaped recursively
+			// unfortunately, array_map and the like cannot be used due to their lack of support for calling static methods
 			foreach($arg as $key => $value){
 				$arg[$key] = self::escape($value, $break);
 			}
@@ -360,17 +361,15 @@ class Templify{
 	 * @see		Templify::assign()
 	 */
 	public function assignAll(array $array){
-		if(is_array($array)){
-			foreach($array as $name => $value){
-				$this->assign($name, $value);
-			}
+		foreach($array as $name => $value){
+			$this->assign($name, $value);
 		}
 	}
 
 	/**
 	 * Retrieves the value that is assigned to <var>$name</var> in an object oriented manner.
 	 * Please note that you can retrieve a keys value by using the magic getter, too.
-	 * 
+	 *
 	 * <code>
 	 * //in template
 	 * $this->get('firstname');
@@ -489,7 +488,7 @@ class Templify{
 		$pathToTemplateFile = $this->templateDirectory.DIRECTORY_SEPARATOR.$templateFile;
 		if(is_array($this->assignments) && count($this->assignments) > 0){
 			extract($this->assignments);
-		} 
+		}
 		//parse the template
 		ob_start();
 		require $pathToTemplateFile;
@@ -554,10 +553,10 @@ class Templify{
 	public function __get($name){
 		return $this->get($name);
 	}
-	
+
 	/**
 	 * A magic setter for assignments as specified in {@link http://php.net/manual/en/language.oop5.overloading.php}.
-	 * 
+	 *
 	 * Example:
 	 * <code>
 	 * // in control
