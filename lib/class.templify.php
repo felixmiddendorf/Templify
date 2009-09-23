@@ -246,59 +246,6 @@ class Templify{
 		$this->hash = ($algorithm === false)?false:((string) $algorithm);
 	}
 
-
-	/**
-	 * Recursively escapes (multi-dimensional) arrays, strings and string representation of objects using
-	 * the php library functions htmlentities as well as nl2br.
-	 *
-	 * Some usage examples:
-	 * <code>
-	 * // a string
-	 * Templify::escape('<script>...</script>');
-	 * #=> '&lt;script&gt;...&lt;/script&gt;'
-	 *
-	 * // an array containing html entities
-	 * Templify::escape(array('c&a', 'h&m'));
-	 * #=> array('c&amp;a','h&amp;m');
-	 *
-	 * // a multi-dimensional array
-	 * Templify::escape(array(array('c','&','a'), array('h','&','m')));
-	 * #=> array(array('c','&amp;','a'), array('h','&amp;','m'))
-	 *
-	 * // an object
-	 * class Person{
-	 * 		//...
-	 * 		public function __toString(){ return 'hello & goodbye everybody!'; }
-	 * 		//...
-	 * }
-	 * Templify::escape(new Person());
-	 * #=> 'hello &amp; goodbye everybody!'
-	 * </code>
-	 *
-	 * @param 	mixed 		$arg 		Argument that will be escaped (array, string or object)
-	 * @param 	boolean 	$break		'new-lines' will be transformed into 'html-breaks' (<br>) if set to true. Default is true.
-	 * @return 	mixed 					Escaped input
-	 */
-	public static function escape($arg, $break = true){
-		if(is_string($arg)){
-			$arg = htmlentities($arg,ENT_QUOTES,self::$charset);
-			return ($break === true)?nl2br($arg):$arg;
-		}elseif(is_array($arg)){
-			// arrays are escaped recursively
-			// unfortunately, array_map and the like cannot be used due to their lack of support for calling static methods
-			foreach($arg as $key => $value){
-				$arg[$key] = self::escape($value, $break);
-			}
-			return $arg;
-		}elseif(is_object($arg)){
-			// toString is called explicitly in order to support php <= 5.2.0
-			return self::escape((method_exists($arg,'__toString'))?$arg->__toString():'Object of type '.(get_class($arg)),$break);
-		}else{
-			// does not need to be escaped
-			return $arg;
-		}
-	}
-
 	/**
 	 * Assigns a name/key to a value so that the value can be retrieved from within a template.
 	 *
@@ -388,6 +335,58 @@ class Templify{
 	}
 
 	/**
+	 * Recursively escapes (multi-dimensional) arrays, strings and string representation of objects using
+	 * the php library functions htmlentities as well as nl2br.
+	 *
+	 * Some usage examples:
+	 * <code>
+	 * // a string
+	 * Templify::escape('<script>...</script>');
+	 * #=> '&lt;script&gt;...&lt;/script&gt;'
+	 *
+	 * // an array containing html entities
+	 * Templify::escape(array('c&a', 'h&m'));
+	 * #=> array('c&amp;a','h&amp;m');
+	 *
+	 * // a multi-dimensional array
+	 * Templify::escape(array(array('c','&','a'), array('h','&','m')));
+	 * #=> array(array('c','&amp;','a'), array('h','&amp;','m'))
+	 *
+	 * // an object
+	 * class Person{
+	 * 		//...
+	 * 		public function __toString(){ return 'hello & goodbye everybody!'; }
+	 * 		//...
+	 * }
+	 * Templify::escape(new Person());
+	 * #=> 'hello &amp; goodbye everybody!'
+	 * </code>
+	 *
+	 * @param 	mixed 		$arg 		Argument that will be escaped (array, string or object)
+	 * @param 	boolean 	$break		'new-lines' will be transformed into 'html-breaks' (<br>) if set to true. Default is true.
+	 * @return 	mixed 					Escaped input
+	 */
+	public static function escape($arg, $break = true){
+		if(is_string($arg)){
+			$arg = htmlentities($arg,ENT_QUOTES,self::$charset);
+			return ($break === true)?nl2br($arg):$arg;
+		}elseif(is_array($arg)){
+			// arrays are escaped recursively
+			// unfortunately, array_map and the like cannot be used due to their lack of support for calling static methods
+			foreach($arg as $key => $value){
+				$arg[$key] = self::escape($value, $break);
+			}
+			return $arg;
+		}elseif(is_object($arg)){
+			// toString is called explicitly in order to support php <= 5.2.0
+			return self::escape((method_exists($arg,'__toString'))?$arg->__toString():'Object of type '.(get_class($arg)),$break);
+		}else{
+			// does not need to be escaped
+			return $arg;
+		}
+	}
+
+	/**
 	 * Parses a template and displays it. If caching is enabled, the cached file will be served.
 	 *
 	 * Example:
@@ -430,55 +429,6 @@ class Templify{
 	}
 
 	/**
-	 * Deletes a cached template.
-	 *
-	 * @param	string	$templateFile		name of the template file
-	 * @param	string	$cacheIdentifier	e.g. primary key
-	 * @return	boolean	true if successful
-	 */
-	public function uncache($templateFile, $cacheIdentifier = ''){
-		$cacheFile = $this->cacheFilename($templateFile, $cacheIdentifier);
-		if(file_exists($cacheFile) && @unlink($cacheFile) !== true){
-			throw new Exception("Could not delete files within the cache directory '{$this->cacheDirectory}");
-		}else{
-			return true;
-		}
-	}
-
-	/**
-	 * Caches a template file.
-	 *
-	 * @param	string	$templateFile		name of the template file
-	 * @param	string	$cacheIdentifier	e.g. primary key
-	 * @return	string	compiled template
-	 */
-	public function cache($templateFile, $cacheIdentifier = ''){
-		$cacheFile = $this->cacheFilename($templateFile, $cacheIdentifier);
-		$cachedTemplate = $this->compile($templateFile);
-		if($this->verboseCaching){
-			$time = (date('m/d/Y H:i'));
-			$cachedTemplate .= "\n<!-- {$templateFile} cached ($time) -->\n";
-		}
-		if(@file_put_contents($cacheFile, $cachedTemplate) === false){
-			throw new Exception("Templify could not write the cache directory '{$this->cacheDirectory}'");
-		}else{
-			return $cachedTemplate;
-		}
-	}
-
-	/**
-	 * Returns the path and filename of a cached file.
-	 *
-	 * @param	string	$templateFile 		name of the template file
-	 * @param	string	$cacheIdentifier	e.g. primary key
-	 * @return	string	path and filename of a cached file
-	 */
-	protected function cacheFilename($templateFile, $cacheIdentifier = ''){
-		$cacheFile = $templateFile.((strlen($cacheIdentifier) > 0)?'_'.$cacheIdentifier:'');
-		return $this->cacheDirectory.DIRECTORY_SEPARATOR.(($this->hash !== false)?hash($this->hash,$cacheFile):$cacheFile).(($this->cacheFileExtension !== false)?'.'.$this->cacheFileExtension:'');
-	}
-
-	/**
 	 * Compiles a template file, but does not persist the result.
 	 *
 	 * @param	string	$templateFile	filename of the template
@@ -510,6 +460,55 @@ class Templify{
 		file_exists($cacheFile) &&
 		(time() - $this->cacheLifetime <= filemtime($cacheFile)) &&
 		($this->production == true || filemtime($this->templateDirectory.DIRECTORY_SEPARATOR.$templateFile) <= filemtime($cacheFile)));
+	}
+
+	/**
+	 * Caches a template file.
+	 *
+	 * @param	string	$templateFile		name of the template file
+	 * @param	string	$cacheIdentifier	e.g. primary key
+	 * @return	string	compiled template
+	 */
+	public function cache($templateFile, $cacheIdentifier = ''){
+		$cacheFile = $this->cacheFilename($templateFile, $cacheIdentifier);
+		$cachedTemplate = $this->compile($templateFile);
+		if($this->verboseCaching){
+			$time = (date('m/d/Y H:i'));
+			$cachedTemplate .= "\n<!-- {$templateFile} cached ($time) -->\n";
+		}
+		if(@file_put_contents($cacheFile, $cachedTemplate) === false){
+			throw new Exception("Templify could not write the cache directory '{$this->cacheDirectory}'");
+		}else{
+			return $cachedTemplate;
+		}
+	}
+
+	/**
+	 * Deletes a cached template.
+	 *
+	 * @param	string	$templateFile		name of the template file
+	 * @param	string	$cacheIdentifier	e.g. primary key
+	 * @return	boolean	true if successful
+	 */
+	public function uncache($templateFile, $cacheIdentifier = ''){
+		$cacheFile = $this->cacheFilename($templateFile, $cacheIdentifier);
+		if(file_exists($cacheFile) && @unlink($cacheFile) !== true){
+			throw new Exception("Could not delete files within the cache directory '{$this->cacheDirectory}");
+		}else{
+			return true;
+		}
+	}
+
+	/**
+	 * Returns the path and filename of a cached file.
+	 *
+	 * @param	string	$templateFile 		name of the template file
+	 * @param	string	$cacheIdentifier	e.g. primary key
+	 * @return	string	path and filename of a cached file
+	 */
+	protected function cacheFilename($templateFile, $cacheIdentifier = ''){
+		$cacheFile = $templateFile.((strlen($cacheIdentifier) > 0)?'_'.$cacheIdentifier:'');
+		return $this->cacheDirectory.DIRECTORY_SEPARATOR.(($this->hash !== false)?hash($this->hash,$cacheFile):$cacheFile).(($this->cacheFileExtension !== false)?'.'.$this->cacheFileExtension:'');
 	}
 
 	/**
