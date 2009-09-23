@@ -436,7 +436,7 @@ class Templify{
 	 */
 	protected function compile($templateFile){
 		$pathToTemplateFile = $this->templateDirectory.DIRECTORY_SEPARATOR.$templateFile;
-		if(is_array($this->assignments) && count($this->assignments) > 0){
+		if(is_array($this->assignments)){
 			extract($this->assignments);
 		}
 		//parse the template
