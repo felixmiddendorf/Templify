@@ -435,18 +435,15 @@ class Templify{
 	 * @return 	string	Compiled template
 	 */
 	protected function compile($templateFile){
-		$pathToTemplateFile = $this->templateDirectory.DIRECTORY_SEPARATOR.$templateFile;
 		if(is_array($this->assignments)){
 			extract($this->assignments);
 		}
 		//parse the template
 		ob_start();
-		require $pathToTemplateFile;
-		$compiledTemplate = ob_get_contents();
-		ob_end_clean();
-		return $compiledTemplate;
+		require $this->templateDirectory.DIRECTORY_SEPARATOR.$templateFile;
+		return ob_get_clean();
 	}
-
+	
 	/**
 	 * Determines whether there is a cache file for <var>$templateFile</var> which did not exceed its lifetime.
 	 *
