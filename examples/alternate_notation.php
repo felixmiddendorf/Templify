@@ -7,4 +7,3 @@ $t = new Templify();
 $t->assign('data', array('hey','ho','hahiho'));
 
 $t->parse('print_array_short_tags.php');
-?>

@@ -7,4 +7,3 @@ $t = new Templify();
 $t->assign('name', 'Mister T');
 
 $t->parse('basic.php');
-?>

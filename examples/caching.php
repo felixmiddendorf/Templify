@@ -16,4 +16,3 @@ if(!$t->isCached('print_array.php')){
 }
 
 $t->display('print_array.php');
-?>
