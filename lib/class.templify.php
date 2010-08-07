@@ -461,8 +461,8 @@ class Templify{
 		$cacheFile = $this->cacheFilename($templateFile, $cacheIdentifier);
 		return ($this->caching &&
 		file_exists($cacheFile) &&
-		(time() - $this->cacheLifetime <= filemtime($cacheFile)) &&
-		($this->production == true || filemtime($this->templateDirectory.$templateFile) <= filemtime($cacheFile)));
+		(time() - $this->cacheLifetime <= filemtime($cacheFile)) && // expired?
+		($this->production == true || filemtime($this->templateDirectory.$templateFile) <= filemtime($cacheFile))); // template newer than cache?
 	}
 
 	/**
@@ -519,14 +519,14 @@ class Templify{
 	 *
 	 * Example:
 	 * <code>
-	 * //in control
+	 * //in controller
 	 * $t = new Templify();
 	 * echo $t;
 	 * echo $t->__toString();
 	 *
 	 * //in template
 	 * echo $this;
-	 * echo $this->__toString();
+	 * echo $this->__toString(); //php <= 5.2.0
 	 * </code>
 	 *
 	 * @return	string
