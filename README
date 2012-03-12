@@ -17,7 +17,8 @@ $t->assign('headline', 'Templify');
 <h1><?php echo $headline; ?></h1>
 
 == DESCRIPTION ==
-Please refer to the project home for further information on how to use Templify.
+Please refer to the project home and the examples for further information on how
+to use Templify.
 
 == AUTHOR ==
 Written and maintained by Felix Middendorf, http://www.felixmiddendorf.eu
@@ -26,6 +27,6 @@ Written and maintained by Felix Middendorf, http://www.felixmiddendorf.eu
 Please report any issues to http://code.google.com/p/templify/issues/entry
 
 == COPYRIGHT ==
-Copyright 2007-2010 Felix Middendorf. All rights reserved. Templify is released
+Copyright 2007-2012 Felix Middendorf. All rights reserved. Templify is released
 under GNU Lesser Public License (see COPYING.LESSER). Please respect copyright
 and license when using Templify.
